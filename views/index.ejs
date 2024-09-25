@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <style>
+      * {
+        margin: 0%;
+        padding: 0%;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <main
+      class="h-screen w-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900"
+    >
+      <div
+        class="conversation-box relative w-96 h-96 bg-gray-200 dark:bg-gray-700 p-2 rounded-lg"
+      >
+        <div id="messages-box" class="messages-box flex flex-col gap-2"></div>
+        <div
+          class="input-box flex gap-2 px-2 pb-2 left-0 absolute bottom-0 w-full"
+        >
+          <input
+            type="text"
+            class="input w-full border-2 border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:text-white"
+            id="message"
+            placeholder="Type a message..."
+          />
+          <button
+            id="send"
+            class="send-btn bg-blue-500 text-white rounded-lg p-2"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+
+      document.getElementById("send").addEventListener("click", function () {
+        var messageInput = document.getElementById("message");
+        var message = messageInput.value.trim();
+
+        if (message !== "") {
+          // Create the outgoing message element
+          var messageElement = document.createElement("div");
+          messageElement.classList.add(
+            "p-2",
+            "ml-auto",
+            "bg-gray-100",
+            "dark:bg-gray-900",
+            "rounded-lg",
+            "w-fit",
+            "dark:text-white"
+          );
+          messageElement.textContent = message;
+
+          // Append the message to the messages box
+          document.getElementById("messages-box").appendChild(messageElement);
+
+          // Clear the input field
+          messageInput.value = "";
+
+          //sending message to server
+
+          socket.emit("message", message);
+        }
+      });
+
+      socket.on("message", function (message) {
+        appendIncomingMessage(message);
+      });
+
+      function appendIncomingMessage(message) {
+        var messageElement = document.createElement("div");
+        messageElement.classList.add(
+          "p-2",
+          "bg-gray-100",
+          "dark:bg-gray-900",
+          "rounded-lg",
+          "w-fit",
+          "dark:text-white"
+        );
+        messageElement.textContent = message;
+
+        // Append the message to the messages box
+        document.getElementById("messages-box").appendChild(messageElement);
+      }
+    </script>
+  </body>
+</html>
